@@ -1,0 +1,43 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: elk-stack
+  labels:
+    app: redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: elk-stack
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: bitnami/redis:latest
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        env:
+          - name: REDIS_PASSWORD
+            value: my_redis_password
+        ports:
+        - containerPort: 6379

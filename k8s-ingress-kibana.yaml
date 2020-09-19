@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: kibana-ingress
+  namespace: elk-stack
+spec:
+  rules:
+  - host: yourdomain.example.com
+    http:
+      paths:
+      - backend:
+          serviceName: kibana
+          servicePort: 80

@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-config
+  namespace: elk-stack
+data:
+  kibana.yml: |-
+    server.name: kibana
+    server.host: 0.0.0.0
+    elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+    monitoring.ui.container.elasticsearch.enabled: true
+    elasticsearch.username: elastic
+    elasticsearch.password: changeme
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: elk-stack
+  labels:
+    app: kibana
+spec:
+  ports:
+    - port: 80
+      targetPort: 5601
+  selector:
+    app: kibana
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: elk-stack
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: docker.elastic.co/kibana/kibana:7.8.0
+          volumeMounts:
+            - name: pipeline
+              mountPath: /usr/share/kibana/config/kibana.yml
+              subPath: kibana.yml
+              readOnly: true
+          resources:
+            limits:
+              cpu: 1000m
+            requests:
+              cpu: 200m
+          ports:
+            - containerPort: 5601
+      volumes:
+        - name: pipeline
+          configMap:
+            name: kibana-config
+            items:
+              - key: kibana.yml
+                path: kibana.yml

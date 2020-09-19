@@ -1,0 +1,5 @@
+# k8s-namespace.yaml
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: elk-stack
